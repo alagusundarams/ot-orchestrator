@@ -40,6 +40,7 @@ dependencies {
     implementation "org.apache.camel.springboot:camel-jackson-starter:${camelVersion}"
     implementation "org.apache.camel.springboot:camel-servlet-starter:${camelVersion}"
     implementation "org.apache.camel.springboot:camel-http-starter:${camelVersion}"
+    implementation "org.apache.camel:camel-http:${camelVersion}"  // For https4 component
     
     // Apache HTTP Components for SSL configuration
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
