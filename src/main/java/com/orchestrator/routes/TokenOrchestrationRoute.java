@@ -65,7 +65,8 @@ public class TokenOrchestrationRoute extends RouteBuilder {
                 .log("Calling: " + authUrl + "/v1/auth")
                 .process(authRequestProcessor)
                 .log("Sending POST request to auth endpoint...")
-                .toD(authUrl + "/v1/auth?bridgeEndpoint=true&throwExceptionOnFailure=true")
+                .toD("https4://" + authUrl.replace("https://", "")
+                        + "/v1/auth?bridgeEndpoint=true&throwExceptionOnFailure=false&sslContextParameters=#sslContextParameters")
                 .log("Auth response received successfully")
                 .process(tokenExtractorProcessor)
                 .log("Token extracted successfully");
