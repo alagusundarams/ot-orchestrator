@@ -46,6 +46,7 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk:${otelVersion}"
     implementation "io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators:${otelVersion}"
+    implementation "io.opentelemetry.semconv:opentelemetry-semconv:${otelVersion}-alpha"
     
     // Lombok for reducing boilerplate
     compileOnly 'org.projectlombok:lombok'
