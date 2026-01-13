@@ -31,8 +31,8 @@ public class EndpointConfigLoader {
     @PostConstruct
     public void loadConfigurations() {
         try (InputStream inputStream = endpointsResource.getInputStream()) {
-            Yaml yaml = new Yaml(new Constructor(EndpointConfigWrapper.class));
-            EndpointConfigWrapper wrapper = yaml.load(inputStream);
+            Yaml yaml = new Yaml();
+            EndpointConfigWrapper wrapper = yaml.loadAs(inputStream, EndpointConfigWrapper.class);
 
             if (wrapper != null && wrapper.getEndpoints() != null) {
                 for (EndpointConfig config : wrapper.getEndpoints()) {
