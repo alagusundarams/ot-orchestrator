@@ -23,9 +23,10 @@ repositories {
     mavenCentral()
 }
 
+
 ext {
     camelVersion = '4.9.0'
-    otelVersion = '2.10.0'
+    otelVersion = '1.44.1'
 }
 
 dependencies {
@@ -40,8 +41,11 @@ dependencies {
     implementation "org.apache.camel.springboot:camel-servlet-starter:${camelVersion}"
     implementation "org.apache.camel.springboot:camel-http-starter:${camelVersion}"
     
-    // OpenTelemetry - Auto-instrumentation (handles everything automatically)
-    implementation "io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:${otelVersion}"
+    // OpenTelemetry - Manual SDK (auto-instrumentation wasn't working)
+    implementation "io.opentelemetry:opentelemetry-api:${otelVersion}"
+    implementation "io.opentelemetry:opentelemetry-sdk:${otelVersion}"
+    implementation "io.opentelemetry:opentelemetry-exporter-logging:${otelVersion}"
+    implementation "io.opentelemetry:opentelemetry-extension-trace-propagators:${otelVersion}"
     
     // Lombok for reducing boilerplate
     compileOnly 'org.projectlombok:lombok'
