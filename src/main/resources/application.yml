@@ -30,7 +30,7 @@ camel:
     main-run-controller: true
   servlet:
     mapping:
-      context-path: /camel/*
+      context-path: /*
   component:
     http:
       # HTTP component configuration for file uploads
