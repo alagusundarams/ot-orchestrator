@@ -38,12 +38,6 @@ camel:
       socket-timeout: 30000
       max-total-connections: 200
       connections-per-route: 20
-      # SSL configuration - disable verification for self-signed certificates
-      x509-hostname-verifier: allow-all
-      ssl-context-parameters:
-        trust-managers:
-          key-store:
-            type: JKS
 
 # OpenTelemetry Configuration
 otel:
