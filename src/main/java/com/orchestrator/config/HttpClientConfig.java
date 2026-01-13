@@ -45,12 +45,8 @@ public class HttpClientConfig {
                         .setMaxConnPerRoute(20)
                         .build();
 
-                // Build HTTP client
-                CloseableHttpClient httpClient = HttpClients.custom()
-                        .setConnectionManager(connectionManager)
-                        .build();
-
-                clientBuilder.setHttpClient(httpClient);
+                // Set connection manager on the builder
+                clientBuilder.setConnectionManager(connectionManager);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to configure HTTP client for self-signed certificates", e);
             }
