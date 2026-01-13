@@ -1,0 +1,55 @@
+# OpenText Endpoint Configurations
+
+endpoints:
+  # Categories endpoint
+  - name: "get-categories"
+    opentext:
+      path: "/v2/nodes/{nodeId}/categories"
+      method: "GET"
+      requiresAuth: true
+    
+    mapping:
+      input:
+        nodeId: "$.id"
+        metadata: "$.metadata"
+        codes: "$.supper_response_codes"
+      
+      pathParams:
+        nodeId: "{nodeId}"
+      
+      queryParams:
+        metadata: "{metadata}"
+        supper_response_codes: "{codes}"
+      
+      headers:
+        OTCSTicket: "{authToken}"
+        Accept: "application/json"
+    
+    response:
+      type: "json"
+      includeMetadata: false
+      transform:
+        status: "success"
+
+  # File content download endpoint
+  - name: "download-file"
+    opentext:
+      path: "/v2/nodes/{nodeId}/content"
+      method: "GET"
+      requiresAuth: true
+    
+    mapping:
+      input:
+        nodeId: "$.id"
+      
+      pathParams:
+        nodeId: "{nodeId}"
+      
+      headers:
+        OTCSTicket: "{authToken}"
+        Accept: "*/*"
+    
+    response:
+      type: "binary"
+      encoding: "base64"
+      includeMetadata: true

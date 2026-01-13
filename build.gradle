@@ -56,6 +56,12 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     
+    // YAML parsing for endpoint configurations
+    implementation 'org.yaml:snakeyaml:2.0'
+    
+    // JSONPath for payload transformations
+    implementation 'com.jayway.jsonpath:json-path:2.8.0'
+    
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.apache.camel:camel-test-spring-junit5:${camelVersion}"
