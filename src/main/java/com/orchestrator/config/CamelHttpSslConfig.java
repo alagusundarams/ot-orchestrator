@@ -8,16 +8,17 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 
 import javax.net.ssl.SSLContext;
 
 /**
  * Camel HTTP Component SSL Configuration
  * 
- * Forces Camel's HTTP component to accept self-signed certificates
- * by configuring the HTTP client with a trust-all SSL context.
+ * Configures Camel's HTTP component AFTER Spring context is initialized
+ * to ensure it uses our SSL bypass settings.
  * 
  * WARNING: This disables SSL verification - USE ONLY FOR DEVELOPMENT/TESTING
  */
@@ -25,50 +26,57 @@ import javax.net.ssl.SSLContext;
 @Configuration
 public class CamelHttpSslConfig {
 
-    @Bean
-    public HttpComponent configureHttpComponent(CamelContext camelContext) throws Exception {
-        log.warn("═══════════════════════════════════════════════════════════");
-        log.warn("CONFIGURING CAMEL HTTP COMPONENT FOR SELF-SIGNED CERTS");
-        log.warn("SSL VERIFICATION DISABLED - DEVELOPMENT ONLY!");
-        log.warn("═══════════════════════════════════════════════════════════");
+    /**
+     * Configure Camel HTTP component after Spring context is fully initialized
+     * This ensures our SSL bypass is applied to all HTTP calls made by Camel
+     */
+    @EventListener(ContextRefreshedEvent.class)
+    public void configureCamelHttpComponent(ContextRefreshedEvent event) {
+        try {
+            log.warn("═══════════════════════════════════════════════════════════");
+            log.warn("CONFIGURING CAMEL HTTP COMPONENT FOR SELF-SIGNED CERTS");
+            log.warn("SSL VERIFICATION DISABLED - DEVELOPMENT ONLY!");
+            log.warn("═══════════════════════════════════════════════════════════");
 
-        // Create SSL context that trusts all certificates
-        SSLContext sslContext = SSLContextBuilder.create()
-                .loadTrustMaterial(null, (chain, authType) -> {
-                    log.debug("Trusting certificate: {}",
-                            chain != null && chain.length > 0 ? chain[0].getSubjectX500Principal() : "unknown");
-                    return true; // Trust everything
-                })
-                .build();
+            CamelContext camelContext = event.getApplicationContext().getBean(CamelContext.class);
 
-        // Create SSL socket factory with no hostname verification
-        SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
-                sslContext,
-                NoopHostnameVerifier.INSTANCE // Accept any hostname
-        );
+            // Create SSL context that trusts ALL certificates
+            SSLContext sslContext = SSLContextBuilder.create()
+                    .loadTrustMaterial(null, (chain, authType) -> {
+                        if (chain != null && chain.length > 0) {
+                            log.debug("Trusting certificate: {}", chain[0].getSubjectX500Principal());
+                        }
+                        return true; // Trust everything
+                    })
+                    .build();
 
-        // Create connection manager with SSL bypass
-        var connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
-                .setSSLSocketFactory(sslSocketFactory)
-                .setMaxConnTotal(200)
-                .setMaxConnPerRoute(20)
-                .build();
+            // Create SSL socket factory with NO hostname verification
+            SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+                    sslContext,
+                    NoopHostnameVerifier.INSTANCE // Accept any hostname
+            );
 
-        // Create HTTP client with our SSL-bypassing connection manager
-        var httpClient = HttpClients.custom()
-                .setConnectionManager(connectionManager)
-                .build();
+            // Create connection manager with SSL bypass
+            var connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setSSLSocketFactory(sslSocketFactory)
+                    .setMaxConnTotal(200)
+                    .setMaxConnPerRoute(20)
+                    .build();
 
-        // Get or create HTTP component
-        HttpComponent httpComponent = camelContext.getComponent("http", HttpComponent.class);
+            // Get HTTP component from Camel context
+            HttpComponent httpComponent = camelContext.getComponent("http", HttpComponent.class);
 
-        // Configure the HTTP component to use our custom client
-        httpComponent.setHttpClientConfigurer(clientBuilder -> {
-            clientBuilder.setConnectionManager(connectionManager);
-        });
+            // Configure HTTP component to use our SSL-bypassing client
+            httpComponent.setHttpClientConfigurer(clientBuilder -> {
+                log.info("Applying SSL bypass to Camel HTTP client builder");
+                clientBuilder.setConnectionManager(connectionManager);
+            });
 
-        log.info("✓ Camel HTTP component configured with SSL bypass");
+            log.info("✓ Camel HTTP component configured successfully with SSL bypass");
 
-        return httpComponent;
+        } catch (Exception e) {
+            log.error("Failed to configure Camel HTTP component with SSL bypass", e);
+            throw new RuntimeException("Failed to configure SSL bypass for Camel HTTP component", e);
+        }
     }
 }
