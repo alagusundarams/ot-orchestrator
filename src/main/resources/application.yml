@@ -11,12 +11,12 @@ spring:
 # Orchestrator Configuration
 orchestrator:
   auth:
-    hostname: ${AUTH_HOSTNAME:localhost:8081}
+    url: ${AUTH_URL:https://myhostname/cs/cs.exe}  # Full URL to auth endpoint
     username: ${AUTH_USERNAME:admin}
     password: ${AUTH_PASSWORD:password}
     domain: ${AUTH_DOMAIN:}  # Optional field
   target:
-    endpoint: ${TARGET_ENDPOINT:http://localhost:8082}  # Base URL, path will be appended
+    endpoint: ${TARGET_ENDPOINT:https://myhostname/cs/cs.exe}  # Base URL for categories endpoint
   
 server:
   port: 8080

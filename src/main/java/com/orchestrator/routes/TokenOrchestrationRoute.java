@@ -30,8 +30,8 @@ public class TokenOrchestrationRoute extends RouteBuilder {
     private final ResponseValidatorProcessor responseValidatorProcessor;
     private final GlobalExceptionHandler globalExceptionHandler;
 
-    @Value("${orchestrator.auth.hostname}")
-    private String authHostname;
+    @Value("${orchestrator.auth.url}")
+    private String authUrl;
 
     @Override
     public void configure() throws Exception {
@@ -63,7 +63,7 @@ public class TokenOrchestrationRoute extends RouteBuilder {
                 .routeId("get-auth-token")
                 .log("Step 1: Requesting authentication token")
                 .process(authRequestProcessor)
-                .toD("http://" + authHostname + "/v1/auth?bridgeEndpoint=true&throwExceptionOnFailure=true")
+                .toD(authUrl + "/v1/auth?bridgeEndpoint=true&throwExceptionOnFailure=true")
                 .process(tokenExtractorProcessor);
 
         // Step 2: Call categories endpoint with token
