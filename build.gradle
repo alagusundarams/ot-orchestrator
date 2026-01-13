@@ -41,6 +41,9 @@ dependencies {
     implementation "org.apache.camel.springboot:camel-servlet-starter:${camelVersion}"
     implementation "org.apache.camel.springboot:camel-http-starter:${camelVersion}"
     
+    // Apache HTTP Components for SSL configuration
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+    
     // OpenTelemetry - Manual SDK (auto-instrumentation wasn't working)
     implementation "io.opentelemetry:opentelemetry-api:${otelVersion}"
     implementation "io.opentelemetry:opentelemetry-sdk:${otelVersion}"
