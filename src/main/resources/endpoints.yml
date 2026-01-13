@@ -1,55 +1,457 @@
-# OpenText Endpoint Configurations
+# OpenText Content Server REST API - Comprehensive Endpoint Configurations
 
 endpoints:
-  # Categories endpoint
-  - name: "get-categories"
+  # ============================================================================
+  # AUTHENTICATION
+  # ============================================================================
+  
+  - name: "authenticate"
     opentext:
-      path: "/v2/nodes/{nodeId}/categories"
+      path: "/v1/auth"
+      method: "POST"
+      requiresAuth: false
+    mapping:
+      input:
+        username: "$.username"
+        password: "$.password"
+      headers:
+        Content-Type: "application/x-www-form-urlencoded"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # NODE OPERATIONS
+  # ============================================================================
+  
+  - name: "get-node"
+    opentext:
+      path: "/v2/nodes/{nodeId}"
       method: "GET"
       requiresAuth: true
-    
     mapping:
       input:
         nodeId: "$.id"
-        metadata: "$.metadata"
-        codes: "$.supper_response_codes"
-      
-      pathParams:
-        nodeId: "{nodeId}"
-      
+        expand: "$.expand"
       queryParams:
-        metadata: "{metadata}"
-        supper_response_codes: "{codes}"
-      
+        expand: "{expand}"
       headers:
         OTCSTicket: "{authToken}"
-        Accept: "application/json"
-    
     response:
       type: "json"
-      includeMetadata: false
-      transform:
-        status: "success"
 
-  # File content download endpoint
+  - name: "get-node-properties"
+    opentext:
+      path: "/v2/nodes/{nodeId}/properties"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  - name: "update-node"
+    opentext:
+      path: "/v2/nodes/{nodeId}"
+      method: "PUT"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  - name: "delete-node"
+    opentext:
+      path: "/v2/nodes/{nodeId}"
+      method: "DELETE"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # FOLDER OPERATIONS
+  # ============================================================================
+  
+  - name: "create-folder"
+    opentext:
+      path: "/v2/nodes"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        parentId: "$.parent_id"
+        name: "$.name"
+        type: "$.type"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  - name: "get-folder-contents"
+    opentext:
+      path: "/v2/nodes/{nodeId}/nodes"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        limit: "$.limit"
+        page: "$.page"
+        where_type: "$.where_type"
+      queryParams:
+        limit: "{limit}"
+        page: "{page}"
+        where_type: "{where_type}"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # DOCUMENT OPERATIONS
+  # ============================================================================
+  
+  - name: "upload-document"
+    opentext:
+      path: "/v2/nodes"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        parentId: "$.parent_id"
+        name: "$.name"
+        type: "$.type"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "multipart/form-data"
+    response:
+      type: "json"
+
   - name: "download-file"
     opentext:
       path: "/v2/nodes/{nodeId}/content"
       method: "GET"
       requiresAuth: true
-    
     mapping:
       input:
         nodeId: "$.id"
-      
-      pathParams:
-        nodeId: "{nodeId}"
-      
       headers:
         OTCSTicket: "{authToken}"
         Accept: "*/*"
-    
     response:
       type: "binary"
       encoding: "base64"
       includeMetadata: true
+
+  - name: "update-document-content"
+    opentext:
+      path: "/v2/nodes/{nodeId}/content"
+      method: "PUT"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "multipart/form-data"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # CATEGORIES & METADATA
+  # ============================================================================
+  
+  - name: "get-categories"
+    opentext:
+      path: "/v2/nodes/{nodeId}/categories"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        metadata: "$.metadata"
+        codes: "$.supper_response_codes"
+      queryParams:
+        metadata: "{metadata}"
+        supper_response_codes: "{codes}"
+      headers:
+        OTCSTicket: "{authToken}"
+        Accept: "application/json"
+    response:
+      type: "json"
+
+  - name: "update-categories"
+    opentext:
+      path: "/v2/nodes/{nodeId}/categories/{categoryId}"
+      method: "PUT"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        categoryId: "$.category_id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # VERSIONS
+  # ============================================================================
+  
+  - name: "get-versions"
+    opentext:
+      path: "/v2/nodes/{nodeId}/versions"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  - name: "get-version-content"
+    opentext:
+      path: "/v2/nodes/{nodeId}/versions/{versionNumber}/content"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        versionNumber: "$.version"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "binary"
+      encoding: "base64"
+      includeMetadata: true
+
+  - name: "promote-version"
+    opentext:
+      path: "/v2/nodes/{nodeId}/versions/{versionNumber}/promote"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        versionNumber: "$.version"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # PERMISSIONS
+  # ============================================================================
+  
+  - name: "get-permissions"
+    opentext:
+      path: "/v2/nodes/{nodeId}/permissions"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  - name: "update-permissions"
+    opentext:
+      path: "/v2/nodes/{nodeId}/permissions"
+      method: "PUT"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # SEARCH
+  # ============================================================================
+  
+  - name: "search-nodes"
+    opentext:
+      path: "/v2/search"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        query: "$.query"
+        where: "$.where"
+        limit: "$.limit"
+        page: "$.page"
+      queryParams:
+        where_name: "{query}"
+        where: "{where}"
+        limit: "{limit}"
+        page: "{page}"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # WORKFLOWS
+  # ============================================================================
+  
+  - name: "get-workflows"
+    opentext:
+      path: "/v2/nodes/{nodeId}/workflows"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  - name: "start-workflow"
+    opentext:
+      path: "/v2/workflows"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        workflowId: "$.workflow_id"
+        nodeId: "$.node_id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # ACTIONS
+  # ============================================================================
+  
+  - name: "copy-node"
+    opentext:
+      path: "/v2/nodes/{nodeId}/copy"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        targetId: "$.target_id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  - name: "move-node"
+    opentext:
+      path: "/v2/nodes/{nodeId}/move"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        targetId: "$.target_id"
+      headers:
+        OTCSTicket: "{authToken}"
+        Content-Type: "application/json"
+    response:
+      type: "json"
+
+  - name: "add-favorite"
+    opentext:
+      path: "/v2/members/favorites/{nodeId}"
+      method: "POST"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  - name: "remove-favorite"
+    opentext:
+      path: "/v2/members/favorites/{nodeId}"
+      method: "DELETE"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # MEMBERS & GROUPS
+  # ============================================================================
+  
+  - name: "get-member"
+    opentext:
+      path: "/v2/members/{memberId}"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        memberId: "$.member_id"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  - name: "search-members"
+    opentext:
+      path: "/v2/members"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        query: "$.query"
+        limit: "$.limit"
+      queryParams:
+        query: "{query}"
+        limit: "{limit}"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
+
+  # ============================================================================
+  # AUDIT
+  # ============================================================================
+  
+  - name: "get-audit-log"
+    opentext:
+      path: "/v2/nodes/{nodeId}/audit"
+      method: "GET"
+      requiresAuth: true
+    mapping:
+      input:
+        nodeId: "$.id"
+        limit: "$.limit"
+      queryParams:
+        limit: "{limit}"
+      headers:
+        OTCSTicket: "{authToken}"
+    response:
+      type: "json"
