@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: ot-orchestrator
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+      file-size-threshold: 2MB
+
+# Orchestrator Configuration
+orchestrator:
+  auth:
+    hostname: ${AUTH_HOSTNAME:localhost:8081}
+    username: ${AUTH_USERNAME:admin}
+    password: ${AUTH_PASSWORD:password}
+    domain: ${AUTH_DOMAIN:}  # Optional field
+  target:
+    endpoint: ${TARGET_ENDPOINT:http://localhost:8082}  # Base URL, path will be appended
+  
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Camel Configuration
+camel:
+  springboot:
+    name: OTOrchestrator
+    main-run-controller: true
+  servlet:
+    mapping:
+      context-path: /camel/*
+  component:
+    http:
+      # HTTP component configuration for file uploads
+      connection-timeout: 30000
+      socket-timeout: 30000
+      max-total-connections: 200
+      connections-per-route: 20
+
+# OpenTelemetry Configuration
+otel:
+  sdk:
+    disabled: false
+  traces:
+    exporter: logging
+  metrics:
+    exporter: logging
+  logs:
+    exporter: logging
+  propagators: tracecontext
+  resource:
+    attributes:
+      service.name: ${spring.application.name}
+      service.version: 1.0.0
+      deployment.environment: development
+
+# Management & Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.orchestrator: DEBUG
+    org.apache.camel: INFO
+    io.opentelemetry: INFO
+    # Enable to see detailed trace/span logs
+    io.opentelemetry.exporter.logging: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - trace_id=%X{trace_id} span_id=%X{span_id} - %msg%n"
