@@ -33,11 +33,17 @@ camel:
       context-path: /*
   component:
     http:
-      # HTTP component configuration for file uploads
+      # HTTP component configuration
       connection-timeout: 30000
       socket-timeout: 30000
       max-total-connections: 200
       connections-per-route: 20
+      # SSL configuration - disable verification for self-signed certificates
+      x509-hostname-verifier: allow-all
+      ssl-context-parameters:
+        trust-managers:
+          key-store:
+            type: JKS
 
 # OpenTelemetry Configuration
 otel:
