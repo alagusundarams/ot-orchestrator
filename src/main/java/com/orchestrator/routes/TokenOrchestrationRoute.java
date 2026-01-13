@@ -62,7 +62,7 @@ public class TokenOrchestrationRoute extends RouteBuilder {
         from("direct:getAuthToken")
                 .routeId("get-auth-token")
                 .log("═══ STEP 1: AUTH TOKEN REQUEST ═══")
-                .log("Calling: ${exchangeProperty.authUrl}/v1/auth")
+                .log("Calling: " + authUrl + "/v1/auth")
                 .process(authRequestProcessor)
                 .log("Sending POST request to auth endpoint...")
                 .toD(authUrl + "/v1/auth?bridgeEndpoint=true&throwExceptionOnFailure=true")
