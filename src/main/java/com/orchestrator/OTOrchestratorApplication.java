@@ -25,6 +25,11 @@ public class OTOrchestratorApplication {
         System.out.println("WARNING: SSL VERIFICATION DISABLED - DEVELOPMENT ONLY!");
         System.out.println("═══════════════════════════════════════════════════════════");
 
+        // Set system properties for SSL bypass
+        System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
+        System.setProperty("com.sun.net.ssl.checkRevocation", "false");
+        System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
+
         // Disable hostname verification
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
 
@@ -49,7 +54,10 @@ public class OTOrchestratorApplication {
             sc.init(null, trustAllCerts, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-            System.out.println("SSL bypass configured successfully");
+            // CRITICAL: Set as default SSL context for ALL SSL connections
+            SSLContext.setDefault(sc);
+
+            System.out.println("SSL bypass configured successfully with SSLContext.setDefault()");
         } catch (Exception e) {
             System.err.println("Failed to configure SSL bypass: " + e.getMessage());
             e.printStackTrace();
