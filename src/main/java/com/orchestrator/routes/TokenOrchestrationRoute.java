@@ -61,17 +61,25 @@ public class TokenOrchestrationRoute extends RouteBuilder {
         // Step 1: Get authentication token
         from("direct:getAuthToken")
                 .routeId("get-auth-token")
-                .log("Step 1: Requesting authentication token")
+                .log("═══ STEP 1: AUTH TOKEN REQUEST ═══")
+                .log("Calling: ${exchangeProperty.authUrl}/v1/auth")
                 .process(authRequestProcessor)
+                .log("Sending POST request to auth endpoint...")
                 .toD(authUrl + "/v1/auth?bridgeEndpoint=true&throwExceptionOnFailure=true")
-                .process(tokenExtractorProcessor);
+                .log("Auth response received successfully")
+                .process(tokenExtractorProcessor)
+                .log("Token extracted successfully");
 
         // Step 2: Call categories endpoint with token
         from("direct:callCategoriesEndpoint")
                 .routeId("call-categories-endpoint")
-                .log("Step 2: Calling GET /v2/nodes/{id}/categories")
+                .log("═══ STEP 2: CATEGORIES API REQUEST ═══")
+                .log("Calling: ${exchangeProperty.targetUrl}")
                 .process(categoriesRequestProcessor)
+                .log("Sending GET request to categories endpoint...")
                 .toD("${exchangeProperty.targetUrl}?bridgeEndpoint=true&throwExceptionOnFailure=true")
-                .process(responseValidatorProcessor);
+                .log("Categories response received successfully")
+                .process(responseValidatorProcessor)
+                .log("Response validation completed");
     }
 }
